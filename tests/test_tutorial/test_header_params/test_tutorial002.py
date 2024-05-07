@@ -27,7 +27,7 @@ client = TestClient(app)
     ],
 )
 def test(path, headers, expected_status, expected_response):
-    response = client.get(path, headers=headers)
+    response = client.get(path, =headers)
     assert response.status_code == expected_status
     assert response.json() == expected_response
 

@@ -24,7 +24,7 @@ class Item(BaseModel):
 
 
 def get_app_client(separate_input_output_schemas: bool = True) -> TestClient:
-    app = FastAPI(separate_input_output_schemas=separate_input_output_schemas)
+    app = FastAPI(=separate_input_output_schemas)
 
     @app.post("/items/")
     def create_item(item: Item):

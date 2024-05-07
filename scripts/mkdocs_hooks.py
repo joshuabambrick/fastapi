@@ -63,28 +63,28 @@ def resolve_file(*, item: str, files: Files, config: MkDocsConfig) -> None:
 def resolve_files(*, items: List[Any], files: Files, config: MkDocsConfig) -> None:
     for item in items:
         if isinstance(item, str):
-            resolve_file(item=item, files=files, config=config)
+            resolve_file(=item, =files, =config)
         elif isinstance(item, dict):
             assert len(item) == 1
             values = list(item.values())
             if not values:
                 continue
             if isinstance(values[0], str):
-                resolve_file(item=values[0], files=files, config=config)
+                resolve_file(item=values[0], =files, =config)
             elif isinstance(values[0], list):
-                resolve_files(items=values[0], files=files, config=config)
+                resolve_files(items=values[0], =files, =config)
             else:
                 raise ValueError(f"Unexpected value: {values}")
 
 
 def on_files(files: Files, *, config: MkDocsConfig) -> Files:
-    resolve_files(items=config.nav or [], files=files, config=config)
+    resolve_files(items=config.nav or [], =files, =config)
     if "logo" in config.theme:
-        resolve_file(item=config.theme["logo"], files=files, config=config)
+        resolve_file(item=config.theme["logo"], =files, =config)
     if "favicon" in config.theme:
-        resolve_file(item=config.theme["favicon"], files=files, config=config)
-    resolve_files(items=config.extra_css, files=files, config=config)
-    resolve_files(items=config.extra_javascript, files=files, config=config)
+        resolve_file(item=config.theme["favicon"], =files, =config)
+    resolve_files(items=config.extra_css, =files, =config)
+    resolve_files(items=config.extra_javascript, =files, =config)
     return files
 
 
@@ -95,12 +95,12 @@ def generate_renamed_section_items(
     for item in items:
         if isinstance(item, Section):
             new_title = item.title
-            new_children = generate_renamed_section_items(item.children, config=config)
+            new_children = generate_renamed_section_items(item.children, =config)
             first_child = new_children[0]
             if isinstance(first_child, Page):
                 if first_child.file.src_path.endswith("index.md"):
                     # Read the source so that the title is parsed and available
-                    first_child.read_source(config=config)
+                    first_child.read_source(=config)
                     new_title = first_child.title or new_title
             # Creating a new section makes it render it collapsed by default
             # no idea why, so, let's just modify the existing one
@@ -116,7 +116,7 @@ def generate_renamed_section_items(
 def on_nav(
     nav: Navigation, *, config: MkDocsConfig, files: Files, **kwargs: Any
 ) -> Navigation:
-    new_items = generate_renamed_section_items(nav.items, config=config)
+    new_items = generate_renamed_section_items(nav.items, =config)
     return Navigation(items=new_items, pages=nav.pages)
 
 

@@ -105,10 +105,10 @@ def get_openapi_operation_parameters(
             continue
         param_schema = get_schema_from_model_field(
             field=param,
-            schema_generator=schema_generator,
-            model_name_map=model_name_map,
-            field_mapping=field_mapping,
-            separate_input_output_schemas=separate_input_output_schemas,
+            =schema_generator,
+            =model_name_map,
+            =field_mapping,
+            =separate_input_output_schemas,
         )
         parameter = {
             "name": param.alias,
@@ -143,10 +143,10 @@ def get_openapi_operation_request_body(
     assert isinstance(body_field, ModelField)
     body_schema = get_schema_from_model_field(
         field=body_field,
-        schema_generator=schema_generator,
-        model_name_map=model_name_map,
-        field_mapping=field_mapping,
-        separate_input_output_schemas=separate_input_output_schemas,
+        =schema_generator,
+        =model_name_map,
+        =field_mapping,
+        =separate_input_output_schemas,
     )
     field_info = cast(Body, body_field.field_info)
     request_media_type = field_info.media_type
@@ -177,7 +177,7 @@ def generate_operation_id(
     if route.operation_id:
         return route.operation_id
     path: str = route.path_format
-    return generate_operation_id_for_path(name=route.name, path=path, method=method)
+    return generate_operation_id_for_path(name=route.name, =path, =method)
 
 
 def generate_operation_summary(*, route: routing.APIRoute, method: str) -> str:
@@ -192,7 +192,7 @@ def get_openapi_operation_metadata(
     operation: Dict[str, Any] = {}
     if route.tags:
         operation["tags"] = route.tags
-    operation["summary"] = generate_operation_summary(route=route, method=method)
+    operation["summary"] = generate_operation_summary(=route, =method)
     if route.description:
         operation["description"] = route.description
     operation_id = route.operation_id or route.unique_id
@@ -236,12 +236,12 @@ def get_openapi_path(
     if route.include_in_schema:
         for method in route.methods:
             operation = get_openapi_operation_metadata(
-                route=route, method=method, operation_ids=operation_ids
+                =route, =method, =operation_ids
             )
             parameters: List[Dict[str, Any]] = []
             flat_dependant = get_flat_dependant(route.dependant, skip_repeats=True)
             security_definitions, operation_security = get_openapi_security_definitions(
-                flat_dependant=flat_dependant
+                =flat_dependant
             )
             if operation_security:
                 operation.setdefault("security", []).extend(operation_security)
@@ -249,11 +249,11 @@ def get_openapi_path(
                 security_schemes.update(security_definitions)
             all_route_params = get_flat_params(route.dependant)
             operation_parameters = get_openapi_operation_parameters(
-                all_route_params=all_route_params,
-                schema_generator=schema_generator,
-                model_name_map=model_name_map,
-                field_mapping=field_mapping,
-                separate_input_output_schemas=separate_input_output_schemas,
+                =all_route_params,
+                =schema_generator,
+                =model_name_map,
+                =field_mapping,
+                =separate_input_output_schemas,
             )
             parameters.extend(operation_parameters)
             if parameters:
@@ -272,10 +272,10 @@ def get_openapi_path(
             if method in METHODS_WITH_BODY:
                 request_body_oai = get_openapi_operation_request_body(
                     body_field=route.body_field,
-                    schema_generator=schema_generator,
-                    model_name_map=model_name_map,
-                    field_mapping=field_mapping,
-                    separate_input_output_schemas=separate_input_output_schemas,
+                    =schema_generator,
+                    =model_name_map,
+                    =field_mapping,
+                    =separate_input_output_schemas,
                 )
                 if request_body_oai:
                     operation["requestBody"] = request_body_oai
@@ -289,11 +289,11 @@ def get_openapi_path(
                             cb_definitions,
                         ) = get_openapi_path(
                             route=callback,
-                            operation_ids=operation_ids,
-                            schema_generator=schema_generator,
-                            model_name_map=model_name_map,
-                            field_mapping=field_mapping,
-                            separate_input_output_schemas=separate_input_output_schemas,
+                            =operation_ids,
+                            =schema_generator,
+                            =model_name_map,
+                            =field_mapping,
+                            =separate_input_output_schemas,
                         )
                         callbacks[callback.name] = {callback.path: cb_path}
                 operation["callbacks"] = callbacks
@@ -321,10 +321,10 @@ def get_openapi_path(
                     if route.response_field:
                         response_schema = get_schema_from_model_field(
                             field=route.response_field,
-                            schema_generator=schema_generator,
-                            model_name_map=model_name_map,
-                            field_mapping=field_mapping,
-                            separate_input_output_schemas=separate_input_output_schemas,
+                            =schema_generator,
+                            =model_name_map,
+                            =field_mapping,
+                            =separate_input_output_schemas,
                         )
                     else:
                         response_schema = {}
@@ -354,11 +354,11 @@ def get_openapi_path(
                     additional_field_schema: Optional[Dict[str, Any]] = None
                     if field:
                         additional_field_schema = get_schema_from_model_field(
-                            field=field,
-                            schema_generator=schema_generator,
-                            model_name_map=model_name_map,
-                            field_mapping=field_mapping,
-                            separate_input_output_schemas=separate_input_output_schemas,
+                            =field,
+                            =schema_generator,
+                            =model_name_map,
+                            =field_mapping,
+                            =separate_input_output_schemas,
                         )
                         media_type = route_response_media_type or "application/json"
                         additional_schema = (
@@ -474,19 +474,19 @@ def get_openapi(
     schema_generator = GenerateJsonSchema(ref_template=REF_TEMPLATE)
     field_mapping, definitions = get_definitions(
         fields=all_fields,
-        schema_generator=schema_generator,
-        model_name_map=model_name_map,
-        separate_input_output_schemas=separate_input_output_schemas,
+        =schema_generator,
+        =model_name_map,
+        =separate_input_output_schemas,
     )
     for route in routes or []:
         if isinstance(route, routing.APIRoute):
             result = get_openapi_path(
-                route=route,
-                operation_ids=operation_ids,
-                schema_generator=schema_generator,
-                model_name_map=model_name_map,
-                field_mapping=field_mapping,
-                separate_input_output_schemas=separate_input_output_schemas,
+                =route,
+                =operation_ids,
+                =schema_generator,
+                =model_name_map,
+                =field_mapping,
+                =separate_input_output_schemas,
             )
             if result:
                 path, security_schemes, path_definitions = result
@@ -502,11 +502,11 @@ def get_openapi(
         if isinstance(webhook, routing.APIRoute):
             result = get_openapi_path(
                 route=webhook,
-                operation_ids=operation_ids,
-                schema_generator=schema_generator,
-                model_name_map=model_name_map,
-                field_mapping=field_mapping,
-                separate_input_output_schemas=separate_input_output_schemas,
+                =operation_ids,
+                =schema_generator,
+                =model_name_map,
+                =field_mapping,
+                =separate_input_output_schemas,
             )
             if result:
                 path, security_schemes, path_definitions = result

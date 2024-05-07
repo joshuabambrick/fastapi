@@ -75,7 +75,7 @@ class HTTPBase(SecurityBase):
         description: Optional[str] = None,
         auto_error: bool = True,
     ):
-        self.model = HTTPBaseModel(scheme=scheme, description=description)
+        self.model = HTTPBaseModel(=scheme, =description)
         self.scheme_name = scheme_name or self.__class__.__name__
         self.auto_error = auto_error
 
@@ -91,7 +91,7 @@ class HTTPBase(SecurityBase):
                 )
             else:
                 return None
-        return HTTPAuthorizationCredentials(scheme=scheme, credentials=credentials)
+        return HTTPAuthorizationCredentials(=scheme, =credentials)
 
 
 class HTTPBasic(HTTPBase):
@@ -179,7 +179,7 @@ class HTTPBasic(HTTPBase):
             ),
         ] = True,
     ):
-        self.model = HTTPBaseModel(scheme="basic", description=description)
+        self.model = HTTPBaseModel(scheme="basic", =description)
         self.scheme_name = scheme_name or self.__class__.__name__
         self.realm = realm
         self.auto_error = auto_error
@@ -214,7 +214,7 @@ class HTTPBasic(HTTPBase):
         username, separator, password = data.partition(":")
         if not separator:
             raise invalid_user_credentials_exc
-        return HTTPBasicCredentials(username=username, password=password)
+        return HTTPBasicCredentials(=username, =password)
 
 
 class HTTPBearer(HTTPBase):
@@ -294,7 +294,7 @@ class HTTPBearer(HTTPBase):
             ),
         ] = True,
     ):
-        self.model = HTTPBearerModel(bearerFormat=bearerFormat, description=description)
+        self.model = HTTPBearerModel(=bearerFormat, =description)
         self.scheme_name = scheme_name or self.__class__.__name__
         self.auto_error = auto_error
 
@@ -318,7 +318,7 @@ class HTTPBearer(HTTPBase):
                 )
             else:
                 return None
-        return HTTPAuthorizationCredentials(scheme=scheme, credentials=credentials)
+        return HTTPAuthorizationCredentials(=scheme, =credentials)
 
 
 class HTTPDigest(HTTPBase):
@@ -396,7 +396,7 @@ class HTTPDigest(HTTPBase):
             ),
         ] = True,
     ):
-        self.model = HTTPBaseModel(scheme="digest", description=description)
+        self.model = HTTPBaseModel(scheme="digest", =description)
         self.scheme_name = scheme_name or self.__class__.__name__
         self.auto_error = auto_error
 
@@ -417,4 +417,4 @@ class HTTPDigest(HTTPBase):
                 status_code=HTTP_403_FORBIDDEN,
                 detail="Invalid authentication credentials",
             )
-        return HTTPAuthorizationCredentials(scheme=scheme, credentials=credentials)
+        return HTTPAuthorizationCredentials(=scheme, =credentials)

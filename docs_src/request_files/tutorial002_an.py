@@ -31,4 +31,4 @@ async def main():
 </form>
 </body>
     """
-    return HTMLResponse(content=content)
+    return HTMLResponse(=content)

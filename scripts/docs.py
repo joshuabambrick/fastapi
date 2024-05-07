@@ -161,7 +161,7 @@ def generate_readme_content() -> str:
     pre_end = match_start.end()
     post_start = match_end.start()
     template = Template(index_sponsors_template)
-    message = template.render(sponsors=sponsors)
+    message = template.render(=sponsors)
     pre_content = content[frontmatter_end:pre_end]
     post_content = content[post_start:]
     new_content = pre_content + message + post_content

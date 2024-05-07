@@ -66,9 +66,7 @@ class OpenIdConnect(SecurityBase):
             ),
         ] = True,
     ):
-        self.model = OpenIdConnectModel(
-            openIdConnectUrl=openIdConnectUrl, description=description
-        )
+        self.model = OpenIdConnectModel(=openIdConnectUrl, =description)
         self.scheme_name = scheme_name or self.__class__.__name__
         self.auto_error = auto_error
 

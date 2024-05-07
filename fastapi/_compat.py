@@ -148,13 +148,13 @@ if PYDANTIC_V2:
             # self._type_adapter.validate_python(value)
             return self._type_adapter.dump_python(
                 value,
-                mode=mode,
-                include=include,
-                exclude=exclude,
-                by_alias=by_alias,
-                exclude_unset=exclude_unset,
-                exclude_defaults=exclude_defaults,
-                exclude_none=exclude_none,
+                =mode,
+                =include,
+                =exclude,
+                =by_alias,
+                =exclude_unset,
+                =exclude_defaults,
+                =exclude_none,
             )
 
         def __hash__(self) -> int:
@@ -176,7 +176,7 @@ if PYDANTIC_V2:
     def _model_dump(
         model: BaseModel, mode: Literal["json", "python"] = "json", **kwargs: Any
     ) -> Any:
-        return model.model_dump(mode=mode, **kwargs)
+        return model.model_dump(=mode, **kwargs)
 
     def _get_model_config(model: BaseModel) -> Any:
         return model.model_config
@@ -227,7 +227,7 @@ if PYDANTIC_V2:
             for field in fields
         ]
         field_mapping, definitions = schema_generator.generate_definitions(
-            inputs=inputs
+            =inputs
         )
         return field_mapping, definitions  # type: ignore[return-value]
 
@@ -375,7 +375,7 @@ else:
         definitions: Dict[str, Dict[str, Any]] = {}
         for model in flat_models:
             m_schema, m_definitions, m_nested_models = model_process_schema(
-                model, model_name_map=model_name_map, ref_prefix=REF_PREFIX
+                model, =model_name_map, ref_prefix=REF_PREFIX
             )
             definitions.update(m_definitions)
             model_name = model_name_map[model]
@@ -455,7 +455,7 @@ else:
     ) -> Dict[str, Any]:
         # This expects that GenerateJsonSchema was already used to generate the definitions
         return field_schema(  # type: ignore[no-any-return]
-            field, model_name_map=model_name_map, ref_prefix=REF_PREFIX
+            field, =model_name_map, ref_prefix=REF_PREFIX
         )[0]
 
     def get_compat_model_name_map(fields: List[ModelField]) -> ModelNameMap:
@@ -475,9 +475,7 @@ else:
         Dict[str, Dict[str, Any]],
     ]:
         models = get_flat_models_from_fields(fields, known_models=set())
-        return {}, get_model_definitions(
-            flat_models=models, model_name_map=model_name_map
-        )
+        return {}, get_model_definitions(flat_models=models, =model_name_map)
 
     def is_scalar_field(field: ModelField) -> bool:
         return is_pv1_scalar_field(field)
@@ -501,7 +499,7 @@ else:
         return sequence_shape_to_type[field.shape](value)  # type: ignore[no-any-return,attr-defined]
 
     def get_missing_field_error(loc: Tuple[str, ...]) -> Dict[str, Any]:
-        missing_field_error = ErrorWrapper(MissingError(), loc=loc)  # type: ignore[call-arg]
+        missing_field_error = ErrorWrapper(MissingError(), =loc)  # type: ignore[call-arg]
         new_error = ValidationError([missing_field_error], RequestErrorModel)
         return new_error.errors()[0]  # type: ignore[return-value]
 

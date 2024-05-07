@@ -22,9 +22,9 @@ def test_strings_in_custom_swagger():
     html = get_swagger_ui_html(
         openapi_url="/docs",
         title="title",
-        swagger_js_url=swagger_js_url,
-        swagger_css_url=swagger_css_url,
-        swagger_favicon_url=swagger_favicon_url,
+        =swagger_js_url,
+        =swagger_css_url,
+        =swagger_favicon_url,
     )
     body_content = html.body.decode()
     assert swagger_js_url in body_content
@@ -48,8 +48,8 @@ def test_strings_in_custom_redoc():
     html = get_redoc_html(
         openapi_url="/docs",
         title="title",
-        redoc_js_url=redoc_js_url,
-        redoc_favicon_url=redoc_favicon_url,
+        =redoc_js_url,
+        =redoc_favicon_url,
     )
     body_content = html.body.decode()
     assert redoc_js_url in body_content

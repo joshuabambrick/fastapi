@@ -223,35 +223,35 @@ def jsonable_encoder(
         obj_dict = _model_dump(
             obj,
             mode="json",
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            exclude_unset=exclude_unset,
-            exclude_none=exclude_none,
-            exclude_defaults=exclude_defaults,
+            =include,
+            =exclude,
+            =by_alias,
+            =exclude_unset,
+            =exclude_none,
+            =exclude_defaults,
         )
         if "__root__" in obj_dict:
             obj_dict = obj_dict["__root__"]
         return jsonable_encoder(
             obj_dict,
-            exclude_none=exclude_none,
-            exclude_defaults=exclude_defaults,
+            =exclude_none,
+            =exclude_defaults,
             # TODO: remove when deprecating Pydantic v1
             custom_encoder=encoders,
-            sqlalchemy_safe=sqlalchemy_safe,
+            =sqlalchemy_safe,
         )
     if dataclasses.is_dataclass(obj):
         obj_dict = dataclasses.asdict(obj)
         return jsonable_encoder(
             obj_dict,
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-            custom_encoder=custom_encoder,
-            sqlalchemy_safe=sqlalchemy_safe,
+            =include,
+            =exclude,
+            =by_alias,
+            =exclude_unset,
+            =exclude_defaults,
+            =exclude_none,
+            =custom_encoder,
+            =sqlalchemy_safe,
         )
     if isinstance(obj, Enum):
         return obj.value
@@ -280,19 +280,19 @@ def jsonable_encoder(
             ):
                 encoded_key = jsonable_encoder(
                     key,
-                    by_alias=by_alias,
-                    exclude_unset=exclude_unset,
-                    exclude_none=exclude_none,
-                    custom_encoder=custom_encoder,
-                    sqlalchemy_safe=sqlalchemy_safe,
+                    =by_alias,
+                    =exclude_unset,
+                    =exclude_none,
+                    =custom_encoder,
+                    =sqlalchemy_safe,
                 )
                 encoded_value = jsonable_encoder(
                     value,
-                    by_alias=by_alias,
-                    exclude_unset=exclude_unset,
-                    exclude_none=exclude_none,
-                    custom_encoder=custom_encoder,
-                    sqlalchemy_safe=sqlalchemy_safe,
+                    =by_alias,
+                    =exclude_unset,
+                    =exclude_none,
+                    =custom_encoder,
+                    =sqlalchemy_safe,
                 )
                 encoded_dict[encoded_key] = encoded_value
         return encoded_dict
@@ -302,14 +302,14 @@ def jsonable_encoder(
             encoded_list.append(
                 jsonable_encoder(
                     item,
-                    include=include,
-                    exclude=exclude,
-                    by_alias=by_alias,
-                    exclude_unset=exclude_unset,
-                    exclude_defaults=exclude_defaults,
-                    exclude_none=exclude_none,
-                    custom_encoder=custom_encoder,
-                    sqlalchemy_safe=sqlalchemy_safe,
+                    =include,
+                    =exclude,
+                    =by_alias,
+                    =exclude_unset,
+                    =exclude_defaults,
+                    =exclude_none,
+                    =custom_encoder,
+                    =sqlalchemy_safe,
                 )
             )
         return encoded_list
@@ -332,12 +332,12 @@ def jsonable_encoder(
             raise ValueError(errors) from e
     return jsonable_encoder(
         data,
-        include=include,
-        exclude=exclude,
-        by_alias=by_alias,
-        exclude_unset=exclude_unset,
-        exclude_defaults=exclude_defaults,
-        exclude_none=exclude_none,
-        custom_encoder=custom_encoder,
-        sqlalchemy_safe=sqlalchemy_safe,
+        =include,
+        =exclude,
+        =by_alias,
+        =exclude_unset,
+        =exclude_defaults,
+        =exclude_none,
+        =custom_encoder,
+        =sqlalchemy_safe,
     )

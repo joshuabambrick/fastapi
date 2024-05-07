@@ -296,12 +296,12 @@ class OAuth2PasswordRequestFormStrict(OAuth2PasswordRequestForm):
         ] = None,
     ):
         super().__init__(
-            grant_type=grant_type,
-            username=username,
-            password=password,
-            scope=scope,
-            client_id=client_id,
-            client_secret=client_secret,
+            =grant_type,
+            =username,
+            =password,
+            =scope,
+            =client_id,
+            =client_secret,
         )
 
 
@@ -371,7 +371,7 @@ class OAuth2(SecurityBase):
         ] = True,
     ):
         self.model = OAuth2Model(
-            flows=cast(OAuthFlowsModel, flows), description=description
+            flows=cast(OAuthFlowsModel, flows), =description
         )
         self.scheme_name = scheme_name or self.__class__.__name__
         self.auto_error = auto_error
@@ -463,12 +463,7 @@ class OAuth2PasswordBearer(OAuth2):
         flows = OAuthFlowsModel(
             password=cast(Any, {"tokenUrl": tokenUrl, "scopes": scopes})
         )
-        super().__init__(
-            flows=flows,
-            scheme_name=scheme_name,
-            description=description,
-            auto_error=auto_error,
-        )
+        super().__init__(=flows, =scheme_name, =description, =auto_error)
 
     async def __call__(self, request: Request) -> Optional[str]:
         authorization = request.headers.get("Authorization")
@@ -573,12 +568,7 @@ class OAuth2AuthorizationCodeBearer(OAuth2):
                 },
             )
         )
-        super().__init__(
-            flows=flows,
-            scheme_name=scheme_name,
-            description=description,
-            auto_error=auto_error,
-        )
+        super().__init__(=flows, =scheme_name, =description, =auto_error)
 
     async def __call__(self, request: Request) -> Optional[str]:
         authorization = request.headers.get("Authorization")

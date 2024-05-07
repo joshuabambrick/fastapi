@@ -49,5 +49,5 @@ app = FastAPI()
 @app.get("/users/{username}", response_model=User)
 def read_user(username: str):
     bucket = get_bucket()
-    user = get_user(bucket=bucket, username=username)
+    user = get_user(=bucket, =username)
     return user

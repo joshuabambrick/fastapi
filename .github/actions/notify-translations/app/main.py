@@ -215,7 +215,7 @@ def get_graphql_response(
     }
     response = httpx.post(
         github_graphql_url,
-        headers=headers,
+        =headers,
         timeout=settings.httpx_timeout,
         json={"query": query, "variables": variables, "operationName": "Q"},
     )
@@ -235,7 +235,7 @@ def get_graphql_response(
 
 def get_graphql_translation_discussions(*, settings: Settings):
     data = get_graphql_response(
-        settings=settings,
+        =settings,
         query=all_discussions_query,
         category_id=questions_translations_category_id,
     )
@@ -247,10 +247,10 @@ def get_graphql_translation_discussion_comments_edges(
     *, settings: Settings, discussion_number: int, after: Union[str, None] = None
 ):
     data = get_graphql_response(
-        settings=settings,
+        =settings,
         query=translation_discussion_query,
-        discussion_number=discussion_number,
-        after=after,
+        =discussion_number,
+        =after,
     )
     graphql_response = CommentsResponse.parse_obj(data)
     return graphql_response.data.repository.discussion.comments.edges
@@ -261,7 +261,7 @@ def get_graphql_translation_discussion_comments(
 ):
     comment_nodes: List[Comment] = []
     discussion_edges = get_graphql_translation_discussion_comments_edges(
-        settings=settings, discussion_number=discussion_number
+        =settings, =discussion_number
     )
 
     while discussion_edges:
@@ -269,8 +269,8 @@ def get_graphql_translation_discussion_comments(
             comment_nodes.append(discussion_edge.node)
         last_edge = discussion_edges[-1]
         discussion_edges = get_graphql_translation_discussion_comments_edges(
-            settings=settings,
-            discussion_number=discussion_number,
+            =settings,
+            =discussion_number,
             after=last_edge.cursor,
         )
     return comment_nodes
@@ -278,10 +278,10 @@ def get_graphql_translation_discussion_comments(
 
 def create_comment(*, settings: Settings, discussion_id: str, body: str):
     data = get_graphql_response(
-        settings=settings,
+        =settings,
         query=add_comment_mutation,
-        discussion_id=discussion_id,
-        body=body,
+        =discussion_id,
+        =body,
     )
     response = AddCommentResponse.parse_obj(data)
     return response.data.addDiscussionComment.comment
@@ -289,10 +289,10 @@ def create_comment(*, settings: Settings, discussion_id: str, body: str):
 
 def update_comment(*, settings: Settings, comment_id: str, body: str):
     data = get_graphql_response(
-        settings=settings,
+        =settings,
         query=update_comment_mutation,
-        comment_id=comment_id,
-        body=body,
+        =comment_id,
+        =body,
     )
     response = UpdateCommentResponse.parse_obj(data)
     return response.data.updateDiscussionComment.comment
@@ -336,7 +336,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # Generate translation map, lang ID to discussion
-    discussions = get_graphql_translation_discussions(settings=settings)
+    discussions = get_graphql_translation_discussions(=settings)
     lang_to_discussion_map: Dict[str, AllDiscussionsDiscussionNode] = {}
     for discussion in discussions:
         for edge in discussion.labels.edges:
@@ -368,7 +368,7 @@ if __name__ == "__main__":
             f"Checking current comments in discussion: #{discussion.number} to see if already notified about this PR: #{pr.number}"
         )
         comments = get_graphql_translation_discussion_comments(
-            settings=settings, discussion_number=discussion.number
+            =settings, discussion_number=discussion.number
         )
         for comment in comments:
             if new_translation_message in comment.body:
@@ -392,7 +392,7 @@ if __name__ == "__main__":
                     f"Writing notification comment about PR #{pr.number} in Discussion: #{discussion.number}"
                 )
                 comment = create_comment(
-                    settings=settings,
+                    =settings,
                     discussion_id=discussion.id,
                     body=new_translation_message,
                 )
@@ -405,7 +405,7 @@ if __name__ == "__main__":
                 )
             elif already_notified_comment:
                 updated_comment = update_comment(
-                    settings=settings,
+                    =settings,
                     comment_id=already_notified_comment.id,
                     body=done_translation_message,
                 )

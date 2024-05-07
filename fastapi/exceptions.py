@@ -62,7 +62,7 @@ class HTTPException(StarletteHTTPException):
             ),
         ] = None,
     ) -> None:
-        super().__init__(status_code=status_code, detail=detail, headers=headers)
+        super().__init__(=status_code, =detail, =headers)
 
 
 class WebSocketException(StarletteWebSocketException):
@@ -133,7 +133,7 @@ class WebSocketException(StarletteWebSocketException):
             ),
         ] = None,
     ) -> None:
-        super().__init__(code=code, reason=reason)
+        super().__init__(=code, =reason)
 
 
 RequestErrorModel: Type[BaseModel] = create_model("Request")
