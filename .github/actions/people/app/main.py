@@ -308,7 +308,7 @@ def get_graphql_response(
     variables = {"after": after, "category_id": category_id}
     response = httpx.post(
         github_graphql_url,
-        headers=headers,
+        =headers,
         timeout=settings.httpx_timeout,
         json={"query": query, "variables": variables, "operationName": "Q"},
     )
@@ -333,9 +333,9 @@ def get_graphql_question_discussion_edges(
     after: Union[str, None] = None,
 ):
     data = get_graphql_response(
-        settings=settings,
+        =settings,
         query=discussions_query,
-        after=after,
+        =after,
         category_id=questions_category_id,
     )
     graphql_response = DiscussionsResponse.model_validate(data)
@@ -343,13 +343,13 @@ def get_graphql_question_discussion_edges(
 
 
 def get_graphql_pr_edges(*, settings: Settings, after: Union[str, None] = None):
-    data = get_graphql_response(settings=settings, query=prs_query, after=after)
+    data = get_graphql_response(=settings, query=prs_query, =after)
     graphql_response = PRsResponse.model_validate(data)
     return graphql_response.data.repository.pullRequests.edges
 
 
 def get_graphql_sponsor_edges(*, settings: Settings, after: Union[str, None] = None):
-    data = get_graphql_response(settings=settings, query=sponsors_query, after=after)
+    data = get_graphql_response(=settings, query=sponsors_query, =after)
     graphql_response = SponsorsResponse.model_validate(data)
     return graphql_response.data.user.sponsorshipsAsMaintainer.edges
 
@@ -365,14 +365,14 @@ class DiscussionExpertsResults(BaseModel):
 
 def get_discussion_nodes(settings: Settings) -> List[DiscussionsNode]:
     discussion_nodes: List[DiscussionsNode] = []
-    discussion_edges = get_graphql_question_discussion_edges(settings=settings)
+    discussion_edges = get_graphql_question_discussion_edges(=settings)
 
     while discussion_edges:
         for discussion_edge in discussion_edges:
             discussion_nodes.append(discussion_edge.node)
         last_edge = discussion_edges[-1]
         discussion_edges = get_graphql_question_discussion_edges(
-            settings=settings, after=last_edge.cursor
+            =settings, after=last_edge.cursor
         )
     return discussion_nodes
 
@@ -430,25 +430,25 @@ def get_discussions_experts(
             if author_time > one_year_ago:
                 one_year_commenters[author_name] += 1
     discussion_experts_results = DiscussionExpertsResults(
-        authors=authors,
-        commenters=commenters,
-        last_month_commenters=last_month_commenters,
-        three_months_commenters=three_months_commenters,
-        six_months_commenters=six_months_commenters,
-        one_year_commenters=one_year_commenters,
+        =authors,
+        =commenters,
+        =last_month_commenters,
+        =three_months_commenters,
+        =six_months_commenters,
+        =one_year_commenters,
     )
     return discussion_experts_results
 
 
 def get_pr_nodes(settings: Settings) -> List[PullRequestNode]:
     pr_nodes: List[PullRequestNode] = []
-    pr_edges = get_graphql_pr_edges(settings=settings)
+    pr_edges = get_graphql_pr_edges(=settings)
 
     while pr_edges:
         for edge in pr_edges:
             pr_nodes.append(edge.node)
         last_edge = pr_edges[-1]
-        pr_edges = get_graphql_pr_edges(settings=settings, after=last_edge.cursor)
+        pr_edges = get_graphql_pr_edges(=settings, after=last_edge.cursor)
     return pr_nodes
 
 
@@ -495,23 +495,23 @@ def get_contributors(pr_nodes: List[PullRequestNode]) -> ContributorsResults:
         if pr.state == "MERGED" and pr.author:
             contributors[pr.author.login] += 1
     return ContributorsResults(
-        contributors=contributors,
-        commenters=commenters,
-        reviewers=reviewers,
-        translation_reviewers=translation_reviewers,
-        authors=authors,
+        =contributors,
+        =commenters,
+        =reviewers,
+        =translation_reviewers,
+        =authors,
     )
 
 
 def get_individual_sponsors(settings: Settings):
     nodes: List[SponsorshipAsMaintainerNode] = []
-    edges = get_graphql_sponsor_edges(settings=settings)
+    edges = get_graphql_sponsor_edges(=settings)
 
     while edges:
         for edge in edges:
             nodes.append(edge.node)
         last_edge = edges[-1]
-        edges = get_graphql_sponsor_edges(settings=settings, after=last_edge.cursor)
+        edges = get_graphql_sponsor_edges(=settings, after=last_edge.cursor)
 
     tiers: DefaultDict[float, Dict[str, SponsorEntity]] = defaultdict(dict)
     for node in nodes:
@@ -551,10 +551,10 @@ if __name__ == "__main__":
     logging.info(f"Using config: {settings.model_dump_json()}")
     g = Github(settings.input_token.get_secret_value())
     repo = g.get_repo(settings.github_repository)
-    discussion_nodes = get_discussion_nodes(settings=settings)
-    experts_results = get_discussions_experts(discussion_nodes=discussion_nodes)
-    pr_nodes = get_pr_nodes(settings=settings)
-    contributors_results = get_contributors(pr_nodes=pr_nodes)
+    discussion_nodes = get_discussion_nodes(=settings)
+    experts_results = get_discussions_experts(=discussion_nodes)
+    pr_nodes = get_pr_nodes(=settings)
+    contributors_results = get_contributors(=pr_nodes)
     authors = {**experts_results.authors, **contributors_results.authors}
     maintainers_logins = {"tiangolo"}
     bot_names = {"codecov", "github-actions", "pre-commit-ci", "dependabot"}
@@ -574,46 +574,46 @@ if __name__ == "__main__":
     skip_users = maintainers_logins | bot_names
     experts = get_top_users(
         counter=experts_results.commenters,
-        authors=authors,
-        skip_users=skip_users,
+        =authors,
+        =skip_users,
     )
     last_month_experts = get_top_users(
         counter=experts_results.last_month_commenters,
-        authors=authors,
-        skip_users=skip_users,
+        =authors,
+        =skip_users,
     )
     three_months_experts = get_top_users(
         counter=experts_results.three_months_commenters,
-        authors=authors,
-        skip_users=skip_users,
+        =authors,
+        =skip_users,
     )
     six_months_experts = get_top_users(
         counter=experts_results.six_months_commenters,
-        authors=authors,
-        skip_users=skip_users,
+        =authors,
+        =skip_users,
     )
     one_year_experts = get_top_users(
         counter=experts_results.one_year_commenters,
-        authors=authors,
-        skip_users=skip_users,
+        =authors,
+        =skip_users,
     )
     top_contributors = get_top_users(
         counter=contributors_results.contributors,
-        authors=authors,
-        skip_users=skip_users,
+        =authors,
+        =skip_users,
     )
     top_reviewers = get_top_users(
         counter=contributors_results.reviewers,
-        authors=authors,
-        skip_users=skip_users,
+        =authors,
+        =skip_users,
     )
     top_translations_reviewers = get_top_users(
         counter=contributors_results.translation_reviewers,
-        authors=authors,
-        skip_users=skip_users,
+        =authors,
+        =skip_users,
     )
 
-    tiers = get_individual_sponsors(settings=settings)
+    tiers = get_individual_sponsors(=settings)
     keys = list(tiers.keys())
     keys.sort(reverse=True)
     sponsors = []

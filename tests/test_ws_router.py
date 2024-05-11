@@ -199,7 +199,7 @@ def websocket_middleware(middleware_func):
             async def call_next():
                 return await app(scope, receive, send)
 
-            websocket = WebSocket(scope, receive=receive, send=send)
+            websocket = WebSocket(scope, =receive, =send)
             return await middleware_func(websocket, call_next)
 
         return wrapped_app

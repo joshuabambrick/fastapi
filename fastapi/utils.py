@@ -77,7 +77,7 @@ def create_response_field(
     class_validators = class_validators or {}
     if PYDANTIC_V2:
         field_info = field_info or FieldInfo(
-            annotation=type_, default=default, alias=alias
+            annotation=type_, =default, =alias
         )
     else:
         field_info = field_info or FieldInfo()
@@ -133,7 +133,7 @@ def create_cloned_field(
             cloned_types[original_type] = use_type
             for f in original_type.__fields__.values():
                 use_type.__fields__[f.name] = create_cloned_field(
-                    f, cloned_types=cloned_types
+                    f, =cloned_types
                 )
     new_field = create_response_field(name=field.name, type_=use_type)
     new_field.has_alias = field.has_alias  # type: ignore[attr-defined]
@@ -147,7 +147,7 @@ def create_cloned_field(
     new_field.validate_always = field.validate_always  # type: ignore[attr-defined]
     if field.sub_fields:  # type: ignore[attr-defined]
         new_field.sub_fields = [  # type: ignore[attr-defined]
-            create_cloned_field(sub_field, cloned_types=cloned_types)
+            create_cloned_field(sub_field, =cloned_types)
             for sub_field in field.sub_fields  # type: ignore[attr-defined]
         ]
     if field.key_field:  # type: ignore[attr-defined]

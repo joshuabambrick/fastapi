@@ -90,17 +90,17 @@ def _prepare_response_content(
         return _model_dump(
             res,
             by_alias=True,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
+            =exclude_unset,
+            =exclude_defaults,
+            =exclude_none,
         )
     elif isinstance(res, list):
         return [
             _prepare_response_content(
                 item,
-                exclude_unset=exclude_unset,
-                exclude_defaults=exclude_defaults,
-                exclude_none=exclude_none,
+                =exclude_unset,
+                =exclude_defaults,
+                =exclude_none,
             )
             for item in res
         ]
@@ -108,9 +108,9 @@ def _prepare_response_content(
         return {
             k: _prepare_response_content(
                 v,
-                exclude_unset=exclude_unset,
-                exclude_defaults=exclude_defaults,
-                exclude_none=exclude_none,
+                =exclude_unset,
+                =exclude_defaults,
+                =exclude_none,
             )
             for k, v in res.items()
         }
@@ -137,9 +137,9 @@ async def serialize_response(
             # pydantic v1
             response_content = _prepare_response_content(
                 response_content,
-                exclude_unset=exclude_unset,
-                exclude_defaults=exclude_defaults,
-                exclude_none=exclude_none,
+                =exclude_unset,
+                =exclude_defaults,
+                =exclude_none,
             )
         if is_coroutine:
             value, errors_ = field.validate(response_content, {}, loc=("response",))
@@ -159,22 +159,22 @@ async def serialize_response(
         if hasattr(field, "serialize"):
             return field.serialize(
                 value,
-                include=include,
-                exclude=exclude,
-                by_alias=by_alias,
-                exclude_unset=exclude_unset,
-                exclude_defaults=exclude_defaults,
-                exclude_none=exclude_none,
+                =include,
+                =exclude,
+                =by_alias,
+                =exclude_unset,
+                =exclude_defaults,
+                =exclude_none,
             )
 
         return jsonable_encoder(
             value,
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
+            =include,
+            =exclude,
+            =by_alias,
+            =exclude_unset,
+            =exclude_defaults,
+            =exclude_none,
         )
     else:
         return jsonable_encoder(response_content)
@@ -267,16 +267,16 @@ def get_request_handler(
             errors: List[Any] = []
             async with AsyncExitStack() as async_exit_stack:
                 solved_result = await solve_dependencies(
-                    request=request,
-                    dependant=dependant,
-                    body=body,
-                    dependency_overrides_provider=dependency_overrides_provider,
-                    async_exit_stack=async_exit_stack,
+                    =request,
+                    =dependant,
+                    =body,
+                    =dependency_overrides_provider,
+                    =async_exit_stack,
                 )
                 values, errors, background_tasks, sub_response, _ = solved_result
                 if not errors:
                     raw_response = await run_endpoint_function(
-                        dependant=dependant, values=values, is_coroutine=is_coroutine
+                        =dependant, =values, =is_coroutine
                     )
                     if isinstance(raw_response, Response):
                         if raw_response.background is None:
@@ -302,7 +302,7 @@ def get_request_handler(
                             exclude_unset=response_model_exclude_unset,
                             exclude_defaults=response_model_exclude_defaults,
                             exclude_none=response_model_exclude_none,
-                            is_coroutine=is_coroutine,
+                            =is_coroutine,
                         )
                         response = actual_response_class(content, **response_args)
                         if not is_body_allowed_for_status_code(response.status_code):
@@ -310,7 +310,7 @@ def get_request_handler(
                         response.headers.raw.extend(sub_response.headers.raw)
             if errors:
                 validation_error = RequestValidationError(
-                    _normalize_errors(errors), body=body
+                    _normalize_errors(errors), =body
                 )
                 raise validation_error
         if response is None:
@@ -337,9 +337,9 @@ def get_websocket_app(
             websocket.scope["fastapi_astack"] = async_exit_stack
             solved_result = await solve_dependencies(
                 request=websocket,
-                dependant=dependant,
-                dependency_overrides_provider=dependency_overrides_provider,
-                async_exit_stack=async_exit_stack,
+                =dependant,
+                =dependency_overrides_provider,
+                =async_exit_stack,
             )
             values, errors, _, _2, _3 = solved_result
             if errors:
@@ -369,13 +369,13 @@ class APIWebSocketRoute(routing.WebSocketRoute):
         for depends in self.dependencies[::-1]:
             self.dependant.dependencies.insert(
                 0,
-                get_parameterless_sub_dependant(depends=depends, path=self.path_format),
+                get_parameterless_sub_dependant(=depends, path=self.path_format),
             )
 
         self.app = websocket_session(
             get_websocket_app(
                 dependant=self.dependant,
-                dependency_overrides_provider=dependency_overrides_provider,
+                =dependency_overrides_provider,
             )
         )
 
@@ -514,7 +514,7 @@ class APIRoute(routing.Route):
         for depends in self.dependencies[::-1]:
             self.dependant.dependencies.insert(
                 0,
-                get_parameterless_sub_dependant(depends=depends, path=self.path_format),
+                get_parameterless_sub_dependant(=depends, path=self.path_format),
             )
         self.body_field = get_body_field(dependant=self.dependant, name=self.unique_id)
         self.app = request_response(self.get_route_handler())
@@ -785,12 +785,12 @@ class APIRouter(routing.Router):
         ] = Default(generate_unique_id),
     ) -> None:
         super().__init__(
-            routes=routes,
-            redirect_slashes=redirect_slashes,
-            default=default,
-            on_startup=on_startup,
-            on_shutdown=on_shutdown,
-            lifespan=lifespan,
+            =routes,
+            =redirect_slashes,
+            =default,
+            =on_startup,
+            =on_shutdown,
+            =lifespan,
         )
         if prefix:
             assert prefix.startswith("/"), "A path prefix must start with '/'"
@@ -817,13 +817,7 @@ class APIRouter(routing.Router):
         include_in_schema: bool = True,
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
         def decorator(func: DecoratedCallable) -> DecoratedCallable:
-            self.add_route(
-                path,
-                func,
-                methods=methods,
-                name=name,
-                include_in_schema=include_in_schema,
-            )
+            self.add_route(path, func, =methods, =name, =include_in_schema)
             return func
 
         return decorator
@@ -882,30 +876,30 @@ class APIRouter(routing.Router):
         )
         route = route_class(
             self.prefix + path,
-            endpoint=endpoint,
-            response_model=response_model,
-            status_code=status_code,
+            =endpoint,
+            =response_model,
+            =status_code,
             tags=current_tags,
             dependencies=current_dependencies,
-            summary=summary,
-            description=description,
-            response_description=response_description,
+            =summary,
+            =description,
+            =response_description,
             responses=combined_responses,
             deprecated=deprecated or self.deprecated,
-            methods=methods,
-            operation_id=operation_id,
-            response_model_include=response_model_include,
-            response_model_exclude=response_model_exclude,
-            response_model_by_alias=response_model_by_alias,
-            response_model_exclude_unset=response_model_exclude_unset,
-            response_model_exclude_defaults=response_model_exclude_defaults,
-            response_model_exclude_none=response_model_exclude_none,
+            =methods,
+            =operation_id,
+            =response_model_include,
+            =response_model_exclude,
+            =response_model_by_alias,
+            =response_model_exclude_unset,
+            =response_model_exclude_defaults,
+            =response_model_exclude_none,
             include_in_schema=include_in_schema and self.include_in_schema,
             response_class=current_response_class,
-            name=name,
+            =name,
             dependency_overrides_provider=self.dependency_overrides_provider,
             callbacks=current_callbacks,
-            openapi_extra=openapi_extra,
+            =openapi_extra,
             generate_unique_id_function=current_generate_unique_id,
         )
         self.routes.append(route)
@@ -944,29 +938,29 @@ class APIRouter(routing.Router):
             self.add_api_route(
                 path,
                 func,
-                response_model=response_model,
-                status_code=status_code,
-                tags=tags,
-                dependencies=dependencies,
-                summary=summary,
-                description=description,
-                response_description=response_description,
-                responses=responses,
-                deprecated=deprecated,
-                methods=methods,
-                operation_id=operation_id,
-                response_model_include=response_model_include,
-                response_model_exclude=response_model_exclude,
-                response_model_by_alias=response_model_by_alias,
-                response_model_exclude_unset=response_model_exclude_unset,
-                response_model_exclude_defaults=response_model_exclude_defaults,
-                response_model_exclude_none=response_model_exclude_none,
-                include_in_schema=include_in_schema,
-                response_class=response_class,
-                name=name,
-                callbacks=callbacks,
-                openapi_extra=openapi_extra,
-                generate_unique_id_function=generate_unique_id_function,
+                =response_model,
+                =status_code,
+                =tags,
+                =dependencies,
+                =summary,
+                =description,
+                =response_description,
+                =responses,
+                =deprecated,
+                =methods,
+                =operation_id,
+                =response_model_include,
+                =response_model_exclude,
+                =response_model_by_alias,
+                =response_model_exclude_unset,
+                =response_model_exclude_defaults,
+                =response_model_exclude_none,
+                =include_in_schema,
+                =response_class,
+                =name,
+                =callbacks,
+                =openapi_extra,
+                =generate_unique_id_function,
             )
             return func
 
@@ -986,8 +980,8 @@ class APIRouter(routing.Router):
 
         route = APIWebSocketRoute(
             self.prefix + path,
-            endpoint=endpoint,
-            name=name,
+            =endpoint,
+            =name,
             dependencies=current_dependencies,
             dependency_overrides_provider=self.dependency_overrides_provider,
         )
@@ -1053,9 +1047,7 @@ class APIRouter(routing.Router):
         """
 
         def decorator(func: DecoratedCallable) -> DecoratedCallable:
-            self.add_api_websocket_route(
-                path, func, name=name, dependencies=dependencies
-            )
+            self.add_api_websocket_route(path, func, =name, =dependencies)
             return func
 
         return decorator
@@ -1064,7 +1056,7 @@ class APIRouter(routing.Router):
         self, path: str, name: Union[str, None] = None
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
         def decorator(func: DecoratedCallable) -> DecoratedCallable:
-            self.add_websocket_route(path, func, name=name)
+            self.add_websocket_route(path, func, =name)
             return func
 
         return decorator
@@ -1284,7 +1276,7 @@ class APIRouter(routing.Router):
                 self.add_route(
                     prefix + route.path,
                     route.endpoint,
-                    methods=methods,
+                    =methods,
                     include_in_schema=route.include_in_schema,
                     name=route.name,
                 )
@@ -1660,30 +1652,30 @@ class APIRouter(routing.Router):
         ```
         """
         return self.api_route(
-            path=path,
-            response_model=response_model,
-            status_code=status_code,
-            tags=tags,
-            dependencies=dependencies,
-            summary=summary,
-            description=description,
-            response_description=response_description,
-            responses=responses,
-            deprecated=deprecated,
+            =path,
+            =response_model,
+            =status_code,
+            =tags,
+            =dependencies,
+            =summary,
+            =description,
+            =response_description,
+            =responses,
+            =deprecated,
             methods=["GET"],
-            operation_id=operation_id,
-            response_model_include=response_model_include,
-            response_model_exclude=response_model_exclude,
-            response_model_by_alias=response_model_by_alias,
-            response_model_exclude_unset=response_model_exclude_unset,
-            response_model_exclude_defaults=response_model_exclude_defaults,
-            response_model_exclude_none=response_model_exclude_none,
-            include_in_schema=include_in_schema,
-            response_class=response_class,
-            name=name,
-            callbacks=callbacks,
-            openapi_extra=openapi_extra,
-            generate_unique_id_function=generate_unique_id_function,
+            =operation_id,
+            =response_model_include,
+            =response_model_exclude,
+            =response_model_by_alias,
+            =response_model_exclude_unset,
+            =response_model_exclude_defaults,
+            =response_model_exclude_none,
+            =include_in_schema,
+            =response_class,
+            =name,
+            =callbacks,
+            =openapi_extra,
+            =generate_unique_id_function,
         )
 
     def put(
@@ -2042,30 +2034,30 @@ class APIRouter(routing.Router):
         ```
         """
         return self.api_route(
-            path=path,
-            response_model=response_model,
-            status_code=status_code,
-            tags=tags,
-            dependencies=dependencies,
-            summary=summary,
-            description=description,
-            response_description=response_description,
-            responses=responses,
-            deprecated=deprecated,
+            =path,
+            =response_model,
+            =status_code,
+            =tags,
+            =dependencies,
+            =summary,
+            =description,
+            =response_description,
+            =responses,
+            =deprecated,
             methods=["PUT"],
-            operation_id=operation_id,
-            response_model_include=response_model_include,
-            response_model_exclude=response_model_exclude,
-            response_model_by_alias=response_model_by_alias,
-            response_model_exclude_unset=response_model_exclude_unset,
-            response_model_exclude_defaults=response_model_exclude_defaults,
-            response_model_exclude_none=response_model_exclude_none,
-            include_in_schema=include_in_schema,
-            response_class=response_class,
-            name=name,
-            callbacks=callbacks,
-            openapi_extra=openapi_extra,
-            generate_unique_id_function=generate_unique_id_function,
+            =operation_id,
+            =response_model_include,
+            =response_model_exclude,
+            =response_model_by_alias,
+            =response_model_exclude_unset,
+            =response_model_exclude_defaults,
+            =response_model_exclude_none,
+            =include_in_schema,
+            =response_class,
+            =name,
+            =callbacks,
+            =openapi_extra,
+            =generate_unique_id_function,
         )
 
     def post(
@@ -2424,30 +2416,30 @@ class APIRouter(routing.Router):
         ```
         """
         return self.api_route(
-            path=path,
-            response_model=response_model,
-            status_code=status_code,
-            tags=tags,
-            dependencies=dependencies,
-            summary=summary,
-            description=description,
-            response_description=response_description,
-            responses=responses,
-            deprecated=deprecated,
+            =path,
+            =response_model,
+            =status_code,
+            =tags,
+            =dependencies,
+            =summary,
+            =description,
+            =response_description,
+            =responses,
+            =deprecated,
             methods=["POST"],
-            operation_id=operation_id,
-            response_model_include=response_model_include,
-            response_model_exclude=response_model_exclude,
-            response_model_by_alias=response_model_by_alias,
-            response_model_exclude_unset=response_model_exclude_unset,
-            response_model_exclude_defaults=response_model_exclude_defaults,
-            response_model_exclude_none=response_model_exclude_none,
-            include_in_schema=include_in_schema,
-            response_class=response_class,
-            name=name,
-            callbacks=callbacks,
-            openapi_extra=openapi_extra,
-            generate_unique_id_function=generate_unique_id_function,
+            =operation_id,
+            =response_model_include,
+            =response_model_exclude,
+            =response_model_by_alias,
+            =response_model_exclude_unset,
+            =response_model_exclude_defaults,
+            =response_model_exclude_none,
+            =include_in_schema,
+            =response_class,
+            =name,
+            =callbacks,
+            =openapi_extra,
+            =generate_unique_id_function,
         )
 
     def delete(
@@ -2801,30 +2793,30 @@ class APIRouter(routing.Router):
         ```
         """
         return self.api_route(
-            path=path,
-            response_model=response_model,
-            status_code=status_code,
-            tags=tags,
-            dependencies=dependencies,
-            summary=summary,
-            description=description,
-            response_description=response_description,
-            responses=responses,
-            deprecated=deprecated,
+            =path,
+            =response_model,
+            =status_code,
+            =tags,
+            =dependencies,
+            =summary,
+            =description,
+            =response_description,
+            =responses,
+            =deprecated,
             methods=["DELETE"],
-            operation_id=operation_id,
-            response_model_include=response_model_include,
-            response_model_exclude=response_model_exclude,
-            response_model_by_alias=response_model_by_alias,
-            response_model_exclude_unset=response_model_exclude_unset,
-            response_model_exclude_defaults=response_model_exclude_defaults,
-            response_model_exclude_none=response_model_exclude_none,
-            include_in_schema=include_in_schema,
-            response_class=response_class,
-            name=name,
-            callbacks=callbacks,
-            openapi_extra=openapi_extra,
-            generate_unique_id_function=generate_unique_id_function,
+            =operation_id,
+            =response_model_include,
+            =response_model_exclude,
+            =response_model_by_alias,
+            =response_model_exclude_unset,
+            =response_model_exclude_defaults,
+            =response_model_exclude_none,
+            =include_in_schema,
+            =response_class,
+            =name,
+            =callbacks,
+            =openapi_extra,
+            =generate_unique_id_function,
         )
 
     def options(
@@ -3178,30 +3170,30 @@ class APIRouter(routing.Router):
         ```
         """
         return self.api_route(
-            path=path,
-            response_model=response_model,
-            status_code=status_code,
-            tags=tags,
-            dependencies=dependencies,
-            summary=summary,
-            description=description,
-            response_description=response_description,
-            responses=responses,
-            deprecated=deprecated,
+            =path,
+            =response_model,
+            =status_code,
+            =tags,
+            =dependencies,
+            =summary,
+            =description,
+            =response_description,
+            =responses,
+            =deprecated,
             methods=["OPTIONS"],
-            operation_id=operation_id,
-            response_model_include=response_model_include,
-            response_model_exclude=response_model_exclude,
-            response_model_by_alias=response_model_by_alias,
-            response_model_exclude_unset=response_model_exclude_unset,
-            response_model_exclude_defaults=response_model_exclude_defaults,
-            response_model_exclude_none=response_model_exclude_none,
-            include_in_schema=include_in_schema,
-            response_class=response_class,
-            name=name,
-            callbacks=callbacks,
-            openapi_extra=openapi_extra,
-            generate_unique_id_function=generate_unique_id_function,
+            =operation_id,
+            =response_model_include,
+            =response_model_exclude,
+            =response_model_by_alias,
+            =response_model_exclude_unset,
+            =response_model_exclude_defaults,
+            =response_model_exclude_none,
+            =include_in_schema,
+            =response_class,
+            =name,
+            =callbacks,
+            =openapi_extra,
+            =generate_unique_id_function,
         )
 
     def head(
@@ -3560,30 +3552,30 @@ class APIRouter(routing.Router):
         ```
         """
         return self.api_route(
-            path=path,
-            response_model=response_model,
-            status_code=status_code,
-            tags=tags,
-            dependencies=dependencies,
-            summary=summary,
-            description=description,
-            response_description=response_description,
-            responses=responses,
-            deprecated=deprecated,
+            =path,
+            =response_model,
+            =status_code,
+            =tags,
+            =dependencies,
+            =summary,
+            =description,
+            =response_description,
+            =responses,
+            =deprecated,
             methods=["HEAD"],
-            operation_id=operation_id,
-            response_model_include=response_model_include,
-            response_model_exclude=response_model_exclude,
-            response_model_by_alias=response_model_by_alias,
-            response_model_exclude_unset=response_model_exclude_unset,
-            response_model_exclude_defaults=response_model_exclude_defaults,
-            response_model_exclude_none=response_model_exclude_none,
-            include_in_schema=include_in_schema,
-            response_class=response_class,
-            name=name,
-            callbacks=callbacks,
-            openapi_extra=openapi_extra,
-            generate_unique_id_function=generate_unique_id_function,
+            =operation_id,
+            =response_model_include,
+            =response_model_exclude,
+            =response_model_by_alias,
+            =response_model_exclude_unset,
+            =response_model_exclude_defaults,
+            =response_model_exclude_none,
+            =include_in_schema,
+            =response_class,
+            =name,
+            =callbacks,
+            =openapi_extra,
+            =generate_unique_id_function,
         )
 
     def patch(
@@ -3942,30 +3934,30 @@ class APIRouter(routing.Router):
         ```
         """
         return self.api_route(
-            path=path,
-            response_model=response_model,
-            status_code=status_code,
-            tags=tags,
-            dependencies=dependencies,
-            summary=summary,
-            description=description,
-            response_description=response_description,
-            responses=responses,
-            deprecated=deprecated,
+            =path,
+            =response_model,
+            =status_code,
+            =tags,
+            =dependencies,
+            =summary,
+            =description,
+            =response_description,
+            =responses,
+            =deprecated,
             methods=["PATCH"],
-            operation_id=operation_id,
-            response_model_include=response_model_include,
-            response_model_exclude=response_model_exclude,
-            response_model_by_alias=response_model_by_alias,
-            response_model_exclude_unset=response_model_exclude_unset,
-            response_model_exclude_defaults=response_model_exclude_defaults,
-            response_model_exclude_none=response_model_exclude_none,
-            include_in_schema=include_in_schema,
-            response_class=response_class,
-            name=name,
-            callbacks=callbacks,
-            openapi_extra=openapi_extra,
-            generate_unique_id_function=generate_unique_id_function,
+            =operation_id,
+            =response_model_include,
+            =response_model_exclude,
+            =response_model_by_alias,
+            =response_model_exclude_unset,
+            =response_model_exclude_defaults,
+            =response_model_exclude_none,
+            =include_in_schema,
+            =response_class,
+            =name,
+            =callbacks,
+            =openapi_extra,
+            =generate_unique_id_function,
         )
 
     def trace(
@@ -4324,30 +4316,30 @@ class APIRouter(routing.Router):
         ```
         """
         return self.api_route(
-            path=path,
-            response_model=response_model,
-            status_code=status_code,
-            tags=tags,
-            dependencies=dependencies,
-            summary=summary,
-            description=description,
-            response_description=response_description,
-            responses=responses,
-            deprecated=deprecated,
+            =path,
+            =response_model,
+            =status_code,
+            =tags,
+            =dependencies,
+            =summary,
+            =description,
+            =response_description,
+            =responses,
+            =deprecated,
             methods=["TRACE"],
-            operation_id=operation_id,
-            response_model_include=response_model_include,
-            response_model_exclude=response_model_exclude,
-            response_model_by_alias=response_model_by_alias,
-            response_model_exclude_unset=response_model_exclude_unset,
-            response_model_exclude_defaults=response_model_exclude_defaults,
-            response_model_exclude_none=response_model_exclude_none,
-            include_in_schema=include_in_schema,
-            response_class=response_class,
-            name=name,
-            callbacks=callbacks,
-            openapi_extra=openapi_extra,
-            generate_unique_id_function=generate_unique_id_function,
+            =operation_id,
+            =response_model_include,
+            =response_model_exclude,
+            =response_model_by_alias,
+            =response_model_exclude_unset,
+            =response_model_exclude_defaults,
+            =response_model_exclude_none,
+            =include_in_schema,
+            =response_class,
+            =name,
+            =callbacks,
+            =openapi_extra,
+            =generate_unique_id_function,
         )
 
     @deprecated(

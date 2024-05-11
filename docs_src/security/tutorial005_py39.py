@@ -119,7 +119,7 @@ async def get_current_user(
         if username is None:
             raise credentials_exception
         token_scopes = payload.get("scopes", [])
-        token_data = TokenData(scopes=token_scopes, username=username)
+        token_data = TokenData(scopes=token_scopes, =username)
     except (JWTError, ValidationError):
         raise credentials_exception
     user = get_user(fake_users_db, username=token_data.username)
@@ -155,7 +155,7 @@ async def login_for_access_token(
         data={"sub": user.username, "scopes": form_data.scopes},
         expires_delta=access_token_expires,
     )
-    return Token(access_token=access_token, token_type="bearer")
+    return Token(=access_token, token_type="bearer")
 
 
 @app.get("/users/me/", response_model=User)

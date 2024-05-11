@@ -23,7 +23,7 @@ def get_client():
     ],
 )
 def test(path, headers, expected_status, expected_response, client: TestClient):
-    response = client.get(path, headers=headers)
+    response = client.get(path, =headers)
     assert response.status_code == expected_status
     assert response.json() == expected_response
 

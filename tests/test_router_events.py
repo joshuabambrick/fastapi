@@ -93,7 +93,7 @@ def test_app_lifespan_state(state: State) -> None:
         yield
         state.app_shutdown = True
 
-    app = FastAPI(lifespan=lifespan)
+    app = FastAPI(=lifespan)
 
     @app.get("/")
     def main() -> Dict[str, str]:

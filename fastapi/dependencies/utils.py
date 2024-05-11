@@ -109,11 +109,11 @@ def get_param_sub_dependant(
 ) -> Dependant:
     assert depends.dependency
     return get_sub_dependant(
-        depends=depends,
+        =depends,
         dependency=depends.dependency,
-        path=path,
+        =path,
         name=param_name,
-        security_scopes=security_scopes,
+        =security_scopes,
     )
 
 
@@ -121,7 +121,7 @@ def get_parameterless_sub_dependant(*, depends: params.Depends, path: str) -> De
     assert callable(
         depends.dependency
     ), "A parameter-less dependency must have a callable dependency"
-    return get_sub_dependant(depends=depends, dependency=depends.dependency, path=path)
+    return get_sub_dependant(=depends, dependency=depends.dependency, =path)
 
 
 def get_sub_dependant(
@@ -145,10 +145,10 @@ def get_sub_dependant(
             security_scheme=dependency, scopes=use_scopes
         )
     sub_dependant = get_dependant(
-        path=path,
+        =path,
         call=dependency,
-        name=name,
-        security_scopes=security_scopes,
+        =name,
+        =security_scopes,
         use_cache=depends.use_cache,
     )
     if security_requirement:
@@ -182,9 +182,7 @@ def get_flat_dependant(
     for sub_dependant in dependant.dependencies:
         if skip_repeats and sub_dependant.cache_key in visited:
             continue
-        flat_sub = get_flat_dependant(
-            sub_dependant, skip_repeats=skip_repeats, visited=visited
-        )
+        flat_sub = get_flat_dependant(sub_dependant, =skip_repeats, =visited)
         flat_dependant.path_params.extend(flat_sub.path_params)
         flat_dependant.query_params.extend(flat_sub.query_params)
         flat_dependant.header_params.extend(flat_sub.header_params)
@@ -249,44 +247,38 @@ def get_dependant(
     path_param_names = get_path_param_names(path)
     endpoint_signature = get_typed_signature(call)
     signature_params = endpoint_signature.parameters
-    dependant = Dependant(
-        call=call,
-        name=name,
-        path=path,
-        security_scopes=security_scopes,
-        use_cache=use_cache,
-    )
+    dependant = Dependant(=call, =name, =path, =security_scopes, =use_cache)
     for param_name, param in signature_params.items():
         is_path_param = param_name in path_param_names
         type_annotation, depends, param_field = analyze_param(
-            param_name=param_name,
+            =param_name,
             annotation=param.annotation,
             value=param.default,
-            is_path_param=is_path_param,
+            =is_path_param,
         )
         if depends is not None:
             sub_dependant = get_param_sub_dependant(
-                param_name=param_name,
-                depends=depends,
-                path=path,
-                security_scopes=security_scopes,
+                =param_name,
+                =depends,
+                =path,
+                =security_scopes,
             )
             dependant.dependencies.append(sub_dependant)
             continue
         if add_non_field_param_to_dependency(
-            param_name=param_name,
-            type_annotation=type_annotation,
-            dependant=dependant,
+            =param_name,
+            =type_annotation,
+            =dependant,
         ):
             assert (
                 param_field is None
             ), f"Cannot specify multiple FastAPI annotations for {param_name!r}"
             continue
         assert param_field is not None
-        if is_body_param(param_field=param_field, is_path_param=is_path_param):
+        if is_body_param(=param_field, =is_path_param):
             dependant.body_params.append(param_field)
         else:
-            add_param_to_fields(field=param_field, dependant=dependant)
+            add_param_to_fields(field=param_field, =dependant)
     return dependant
 
 
@@ -445,9 +437,9 @@ def analyze_param(
             name=param_name,
             type_=use_annotation_from_field_info,
             default=field_info.default,
-            alias=alias,
+            =alias,
             required=field_info.default in (Required, Undefined),
-            field_info=field_info,
+            =field_info,
         )
 
     return type_annotation, depends, field
@@ -564,20 +556,20 @@ async def solve_dependencies(
             use_path: str = sub_dependant.path  # type: ignore
             use_sub_dependant = get_dependant(
                 path=use_path,
-                call=call,
+                =call,
                 name=sub_dependant.name,
                 security_scopes=sub_dependant.security_scopes,
             )
 
         solved_result = await solve_dependencies(
-            request=request,
+            =request,
             dependant=use_sub_dependant,
-            body=body,
-            background_tasks=background_tasks,
-            response=response,
-            dependency_overrides_provider=dependency_overrides_provider,
-            dependency_cache=dependency_cache,
-            async_exit_stack=async_exit_stack,
+            =body,
+            =background_tasks,
+            =response,
+            =dependency_overrides_provider,
+            =dependency_cache,
+            =async_exit_stack,
         )
         (
             sub_values,
@@ -594,7 +586,7 @@ async def solve_dependencies(
             solved = dependency_cache[sub_dependant.cache_key]
         elif is_gen_callable(call) or is_async_gen_callable(call):
             solved = await solve_generator(
-                call=call, stack=async_exit_stack, sub_values=sub_values
+                =call, stack=async_exit_stack, =sub_values
             )
         elif is_coroutine_callable(call):
             solved = await call(**sub_values)
@@ -669,11 +661,11 @@ def request_params_to_args(
         loc = (field_info.in_.value, field.alias)
         if value is None:
             if field.required:
-                errors.append(get_missing_field_error(loc=loc))
+                errors.append(get_missing_field_error(=loc))
             else:
                 values[field.name] = deepcopy(field.default)
             continue
-        v_, errors_ = field.validate(value, values, loc=loc)
+        v_, errors_ = field.validate(value, values, =loc)
         if isinstance(errors_, ErrorWrapper):
             errors.append(errors_)
         elif isinstance(errors_, list):
@@ -753,9 +745,9 @@ async def request_body_to_args(
                 async with anyio.create_task_group() as tg:
                     for sub_value in value:
                         tg.start_soon(process_fn, sub_value.read)
-                value = serialize_sequence_value(field=field, value=results)
+                value = serialize_sequence_value(=field, value=results)
 
-            v_, errors_ = field.validate(value, values, loc=loc)
+            v_, errors_ = field.validate(value, values, =loc)
 
             if isinstance(errors_, list):
                 errors.extend(errors_)
@@ -784,7 +776,7 @@ def get_body_field(*, dependant: Dependant, name: str) -> Optional[ModelField]:
         setattr(param.field_info, "embed", True)  # noqa: B010
     model_name = "Body_" + name
     BodyModel = create_body_model(
-        fields=flat_dependant.body_params, model_name=model_name
+        fields=flat_dependant.body_params, =model_name
     )
     required = any(True for f in flat_dependant.body_params if f.required)
     BodyFieldInfo_kwargs: Dict[str, Any] = {
@@ -810,7 +802,7 @@ def get_body_field(*, dependant: Dependant, name: str) -> Optional[ModelField]:
     final_field = create_response_field(
         name="body",
         type_=BodyModel,
-        required=required,
+        =required,
         alias="body",
         field_info=BodyFieldInfo(**BodyFieldInfo_kwargs),
     )

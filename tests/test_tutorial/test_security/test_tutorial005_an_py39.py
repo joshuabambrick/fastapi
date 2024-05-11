@@ -19,7 +19,7 @@ def get_access_token(
     data = {"username": username, "password": password}
     if scope:
         data["scope"] = scope
-    response = client.post("/token", data=data)
+    response = client.post("/token", =data)
     content = response.json()
     access_token = content.get("access_token")
     return access_token
@@ -60,7 +60,7 @@ def test_no_token(client: TestClient):
 
 @needs_py39
 def test_token(client: TestClient):
-    access_token = get_access_token(scope="me", client=client)
+    access_token = get_access_token(scope="me", =client)
     response = client.get(
         "/users/me", headers={"Authorization": f"Bearer {access_token}"}
     )
@@ -141,7 +141,7 @@ def test_token_no_username(client: TestClient):
 
 @needs_py39
 def test_token_no_scope(client: TestClient):
-    access_token = get_access_token(client=client)
+    access_token = get_access_token(=client)
     response = client.get(
         "/users/me", headers={"Authorization": f"Bearer {access_token}"}
     )
@@ -166,7 +166,7 @@ def test_token_nonexistent_user(client: TestClient):
 @needs_py39
 def test_token_inactive_user(client: TestClient):
     access_token = get_access_token(
-        username="alice", password="secretalice", scope="me", client=client
+        username="alice", password="secretalice", scope="me", =client
     )
     response = client.get(
         "/users/me", headers={"Authorization": f"Bearer {access_token}"}
@@ -177,7 +177,7 @@ def test_token_inactive_user(client: TestClient):
 
 @needs_py39
 def test_read_items(client: TestClient):
-    access_token = get_access_token(scope="me items", client=client)
+    access_token = get_access_token(scope="me items", =client)
     response = client.get(
         "/users/me/items/", headers={"Authorization": f"Bearer {access_token}"}
     )
@@ -187,7 +187,7 @@ def test_read_items(client: TestClient):
 
 @needs_py39
 def test_read_system_status(client: TestClient):
-    access_token = get_access_token(client=client)
+    access_token = get_access_token(=client)
     response = client.get(
         "/status/", headers={"Authorization": f"Bearer {access_token}"}
     )

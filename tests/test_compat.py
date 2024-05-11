@@ -19,7 +19,7 @@ from .utils import needs_pydanticv1, needs_pydanticv2
 def test_model_field_default_required():
     # For coverage
     field_info = FieldInfo(annotation=str)
-    field = ModelField(name="foo", field_info=field_info)
+    field = ModelField(name="foo", =field_info)
     assert field.default is Undefined
 
 
@@ -40,7 +40,7 @@ def test_union_scalar_list():
     field_info = FieldInfo()
     field = ModelField(
         name="foo",
-        field_info=field_info,
+        =field_info,
         type_=Union[str, List[int]],
         class_validators={},
         model_config=BaseConfig,

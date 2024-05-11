@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
     ml_models.clear()
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(=lifespan)
 
 
 @app.get("/predict")

@@ -20,7 +20,7 @@ from docs_src.cookie_params.tutorial001_an import app
     ],
 )
 def test(path, cookies, expected_status, expected_response):
-    client = TestClient(app, cookies=cookies)
+    client = TestClient(app, =cookies)
     response = client.get(path)
     assert response.status_code == expected_status
     assert response.json() == expected_response
